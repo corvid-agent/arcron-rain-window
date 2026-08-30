@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RAIN WINDOW · Arcron TestNet</title>
+  <meta name="description" content="800 rounds or the drip is abandoned. Read-only Rain resolve window on Algorand TestNet hub 770130162.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="sky" aria-hidden="true">
+    <div class="rain"></div>
+    <div class="veil"></div>
+  </div>
+
+  <header class="mast">
+    <p class="eyebrow">TESTNET · NO WALLET · HUB 770130162 · IMMUTABLE</p>
+    <h1>RAIN WINDOW</h1>
+    <p class="tag">800 rounds or the drip is abandoned.</p>
+    <div class="meters">
+      <div class="crt">
+        <span class="crt-k">LAST ROUND</span>
+        <span class="crt-v" id="round">········</span>
+      </div>
+      <div class="crt">
+        <span class="crt-k">FEED</span>
+        <span class="crt-v" id="feed">SEEKING</span>
+      </div>
+      <div class="crt">
+        <span class="crt-k">SEED WINDOW</span>
+        <span class="crt-v">800 r</span>
+      </div>
+      <div class="crt">
+        <span class="crt-k">DECODED</span>
+        <span class="crt-v" id="decoded">—</span>
+      </div>
+    </div>
+    <p class="feed-note" id="feed-note">prefer live indexer · snapshot if CORS fails</p>
+  </header>
+
+  <section class="legend" aria-label="status legend">
+    <div class="leg open"><i></i> open</div>
+    <div class="leg wait"><i></i> drawn-waiting-resolve</div>
+    <div class="leg resolve"><i></i> resolve-window remaining</div>
+    <div class="leg abandon"><i></i> abandonable</div>
+  </section>
+
+  <main id="columns" class="columns" aria-live="polite"></main>
+  <p class="empty hidden" id="empty">No rain boxes r||1..n on hub 770130162.</p>
+
+  <footer class="foot">
+    <p>corvid-agent first-party demo · not the <a href="https://corvidlabs.xyz/arcron/console/">Arcron console</a> · not <a href="https://corvid-agent.github.io/arrivals/">arrivals</a>.</p>
+    <p>Read-only. Cost zero. Unaudited. TestNet only. Layout: <code>RainRec</code> from <a href="https://github.com/CorvidLabs/arcron/blob/main/smart_contracts/rain/contract.py">CorvidLabs/arcron</a>.</p>
+    <p id="stamp">chain is source of truth.</p>
+    <p class="src"><a href="https://github.com/corvid-agent/arcron-rain-window">source</a></p>
+  </footer>
+
+  <noscript class="noscript">This board needs JavaScript to decode TestNet boxes. A static snapshot lives in snapshot.json.</noscript>
+  <script src="app.js"></script>
+</body>
+</html>
