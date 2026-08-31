@@ -14,7 +14,7 @@ Immutable Rain hub [`770130162`](https://testnet.explorer.perawallet.app/applica
 | 4 | live ASA split | SPLIT | 0 | 0 | open |
 | 5 | swarm audit split | SPLIT | 0 | 0 | open |
 
-`RainRec` layout is the 224-byte ARC-4 struct in [CorvidLabs/arcron `contract.py`](https://github.com/CorvidLabs/arcron/blob/main/smart_contracts/rain/contract.py). `SEED_WINDOW = 800`. Block seed is readable for ~1000 rounds; `resolve` must land inside the window or the locked drip is `abandon`ed. Rain 3 is past the window (`commit_round + 800 < last_round`) with `prize_locked = 50000` — abandonable on chain. The board does not call `abandon`.
+`RainRec` is 224 bytes including `prize_locked`. Hub `770130162` matches that layout **without** the #213 enter-while-locked assert, and it cannot be updated ([#232](https://github.com/CorvidLabs/arcron/issues/232)). Not product rain. Do not copy this app id into `arcron-rain`. `SEED_WINDOW = 800`. Rain 3 is past the window with `prize_locked = 50000` — abandonable on chain. The board does not call `abandon`.
 
 ## How to view
 
@@ -31,7 +31,7 @@ Zero. This repo never signs, never asks for a mnemonic, and never submits a tran
 ## What is broken
 
 - Browser CORS on algonode can force the snapshot, which ages.
-- The board does not call `resolve` or `abandon` (no wallet).
+- The live hub is pre-#213: tickets can still be bought while a ONE draw is open. Immutable, so that guard will never land on 770130162.\n- The board does not call `resolve` or `abandon` (no wallet).
 - Ticket boxes and lottery index boxes are not listed.
 - `blk_seed` is not fetched; remaining rounds are computed from `commit_round` and last-round only.
 - SPLIT and WAVE rains have no seed window; only ONE with a lock does.
