@@ -4,7 +4,7 @@ A read-only TestNet board that decodes Rain hub boxes and paints whether each ra
 
 ## Live proof
 
-Immutable Rain hub [`770130162`](https://testnet.explorer.perawallet.app/application/770130162) on Algorand TestNet. At **round 66960860** (`next_rain_id = 5`) the five `r||itob(id)` boxes decoded from [testnet-idx.algonode.cloud](https://testnet-idx.algonode.cloud):
+Immutable Rain hub [`770130162`](https://testnet.explorer.perawallet.app/application/770130162) on Algorand TestNet. At **round 66983847** (`next_rain_id = 5`) the five `r||itob(id)` boxes decoded from [testnet-idx.algonode.cloud](https://testnet-idx.algonode.cloud):
 
 | id | label | mode | prize_locked | commit_round | status |
 |---:|---|---|---:|---:|---|
