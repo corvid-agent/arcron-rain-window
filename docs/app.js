@@ -310,6 +310,219 @@
     }
   }
 
+
+  const PHOS = "#4df0c8";
+  const PHOS_DIM = "#1a6d5e";
+  const AMBER = "#ffd56a";
+  const WARN = "#ff5a8a";
+  const OPEN = "#7ee0ff";
+  const STORM = "#6aa8ff";
+  let histDb = null;
+  let charts = {};
+
+  function $(id) {
+    return document.getElementById(id);
+  }
+
+  function phosChart(ctx, spec) {
+    const Chart = globalThis.Chart;
+    Chart.defaults.color = PHOS_DIM;
+    Chart.defaults.borderColor = "rgba(77,240,200,0.12)";
+    Chart.defaults.font.family = "IBM Plex Mono, ui-monospace, Menlo, Consolas, monospace";
+    return new Chart(ctx, spec);
+  }
+
+  function querySamples() {
+    if (!histDb) return [];
+    const res = histDb.exec(
+      "SELECT t, round, listed, open, waiting, resolve_window, abandonable, pot_micro, prize_locked_micro, tickets, source FROM samples ORDER BY round, t"
+    );
+    if (!res[0]) return [];
+    return res[0].values.map((v) => ({
+      t: v[0],
+      round: v[1],
+      listed: v[2],
+      open: v[3],
+      waiting: v[4],
+      resolve_window: v[5],
+      abandonable: v[6],
+      pot_micro: v[7],
+      prize_locked_micro: v[8],
+      tickets: v[9],
+      source: v[10],
+    }));
+  }
+
+  function drawHistoryCharts(rows) {
+    if (!rows.length || !globalThis.Chart) return;
+    const latest = rows[rows.length - 1] || {};
+    const labels = rows.map((r) => String(r.round));
+    const mixEl = $("mix-canvas");
+    const splitEl = $("split-canvas");
+    const escEl = $("escrow-canvas");
+    if (!mixEl || !splitEl || !escEl) return;
+
+    if (charts.mix) charts.mix.destroy();
+    charts.mix = phosChart(mixEl, {
+      type: "doughnut",
+      data: {
+        labels: ["open", "waiting", "resolve window", "abandonable"],
+        datasets: [{
+          data: [
+            latest.open || 0,
+            latest.waiting || 0,
+            latest.resolve_window || 0,
+            latest.abandonable || 0,
+          ],
+          backgroundColor: [OPEN, AMBER, PHOS, WARN],
+          borderWidth: 0,
+        }],
+      },
+      options: {
+        plugins: { legend: { position: "bottom", labels: { boxWidth: 10, font: { size: 10 } } } },
+        cutout: "62%",
+        animation: { duration: 900 },
+      },
+    });
+
+    if (charts.split) charts.split.destroy();
+    charts.split = phosChart(splitEl, {
+      type: "line",
+      data: {
+        labels,
+        datasets: [
+          { label: "open", data: rows.map((r) => r.open || 0), borderColor: OPEN, tension: 0.25, pointRadius: 2 },
+          { label: "waiting", data: rows.map((r) => r.waiting || 0), borderColor: AMBER, tension: 0.25, pointRadius: 2 },
+          { label: "resolve window", data: rows.map((r) => r.resolve_window || 0), borderColor: PHOS, tension: 0.25, pointRadius: 2 },
+          { label: "abandonable", data: rows.map((r) => r.abandonable || 0), borderColor: WARN, tension: 0.25, pointRadius: 2 },
+        ],
+      },
+      options: {
+        plugins: { legend: { labels: { boxWidth: 10, font: { size: 10 } } } },
+        scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+        animation: { duration: 900 },
+      },
+    });
+
+    if (charts.escrow) charts.escrow.destroy();
+    const pot = rows.map((r) => (r.pot_micro == null ? null : Number(r.pot_micro) / 1e6));
+    const locked = rows.map((r) => (r.prize_locked_micro == null ? null : Number(r.prize_locked_micro) / 1e6));
+    charts.escrow = phosChart(escEl, {
+      type: "line",
+      data: {
+        labels,
+        datasets: [
+          {
+            label: "total pot ALGO",
+            data: pot,
+            borderColor: PHOS,
+            backgroundColor: "rgba(77,240,200,0.14)",
+            fill: true,
+            tension: 0.3,
+            spanGaps: true,
+            pointRadius: 2,
+          },
+          {
+            label: "prize locked ALGO",
+            data: locked,
+            borderColor: WARN,
+            tension: 0.3,
+            spanGaps: true,
+            pointRadius: 2,
+          },
+          {
+            label: "tickets",
+            data: rows.map((r) => r.tickets || 0),
+            borderColor: STORM,
+            tension: 0.25,
+            pointRadius: 2,
+            yAxisID: "y1",
+            borderDash: [4, 3],
+          },
+        ],
+      },
+      options: {
+        plugins: { legend: { labels: { boxWidth: 10, font: { size: 10 } } } },
+        scales: {
+          y: { beginAtZero: true, position: "left" },
+          y1: { beginAtZero: true, position: "right", grid: { drawOnChartArea: false }, ticks: { precision: 0 } },
+        },
+        animation: { duration: 900 },
+      },
+    });
+  }
+
+  async function bootSqlFromRows(rows) {
+    const initSqlJs = globalThis.initSqlJs;
+    const SQL = await initSqlJs({
+      locateFile: (f) => "https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.11.0/" + f,
+    });
+    histDb = new SQL.Database();
+    histDb.run(
+      "CREATE TABLE samples (t TEXT, round INTEGER, listed INTEGER, open INTEGER, waiting INTEGER, resolve_window INTEGER, abandonable INTEGER, pot_micro INTEGER, prize_locked_micro INTEGER, tickets INTEGER, source TEXT);"
+    );
+    const ins = histDb.prepare("INSERT INTO samples VALUES (?,?,?,?,?,?,?,?,?,?,?)");
+    rows.forEach((r) => {
+      ins.run([
+        r.t,
+        r.round,
+        r.listed,
+        r.open,
+        r.waiting,
+        r.resolve_window,
+        r.abandonable,
+        r.pot_micro,
+        r.prize_locked_micro,
+        r.tickets,
+        r.source,
+      ]);
+    });
+    ins.free();
+  }
+
+  async function bootSqlFromSqlite(buf) {
+    const initSqlJs = globalThis.initSqlJs;
+    const SQL = await initSqlJs({
+      locateFile: (f) => "https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.11.0/" + f,
+    });
+    histDb = new SQL.Database(new Uint8Array(buf));
+  }
+
+  async function bootHistoryGraphs() {
+    const histN = $("hist-n");
+    if (!globalThis.Chart || !globalThis.initSqlJs) {
+      if (histN) histN.textContent = "cdn pending";
+      return;
+    }
+    let rows = [];
+    let loaded = "";
+    try {
+      const res = await fetch("history.sqlite", { cache: "no-store" });
+      if (res.ok) {
+        const buf = await res.arrayBuffer();
+        if (buf.byteLength > 0) {
+          await bootSqlFromSqlite(buf);
+          rows = querySamples();
+          loaded = "sqlite";
+        }
+      }
+    } catch (_) {}
+    if (!rows.length) {
+      try {
+        const hist = await fetch("history.json", { cache: "no-store" }).then((r) => r.json());
+        rows = Array.isArray(hist) ? hist : [];
+        await bootSqlFromRows(rows);
+        rows = querySamples();
+        loaded = "json";
+      } catch (_) {
+        rows = [];
+      }
+    }
+    if (histN) histN.textContent = rows.length ? rows.length + " · " + loaded : "empty";
+    drawHistoryCharts(rows);
+  }
+
   tick();
   setInterval(tick, REFRESH_MS);
+  bootHistoryGraphs().catch(() => {});
 })();

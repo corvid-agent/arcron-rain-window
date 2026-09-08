@@ -4,7 +4,7 @@ A read-only TestNet board that decodes Rain hub boxes and paints whether each ra
 
 ## Live proof
 
-Immutable Rain hub [`770130162`](https://testnet.explorer.perawallet.app/application/770130162) on Algorand TestNet. At **round 67107545** (`next_rain_id = 5`) the five `r||itob(id)` boxes decoded from [testnet-idx.algonode.cloud](https://testnet-idx.algonode.cloud):
+Immutable Rain hub [`770130162`](https://testnet.explorer.perawallet.app/application/770130162) on Algorand TestNet. At **round 67117616** (`next_rain_id = 5`) the five `r||itob(id)` boxes decoded from [testnet-idx.algonode.cloud](https://testnet-idx.algonode.cloud):
 
 | id | label | mode | prize_locked | commit_round | status |
 |---:|---|---|---:|---:|---|
@@ -22,7 +22,10 @@ Open [corvid-agent.github.io/arcron-rain-window](https://corvid-agent.github.io/
 
 ```bash
 python3 scripts/refresh_snapshot.py   # writes docs/snapshot.json from TestNet, no key
+python3 scripts/probe_history.py      # append docs/history.json + history.sqlite from snapshot
 ```
+
+Phosphor graphs on the Pages board read append-only `docs/history.json` / `docs/history.sqlite` via in-page sql.js (same spirit as arcron-status-page).
 
 ## Cost
 

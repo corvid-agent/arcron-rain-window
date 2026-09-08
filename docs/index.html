@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>RAIN WINDOW · Arcron TestNet</title>
-  <meta name="description" content="800 rounds or the drip is abandoned. Read-only Rain resolve window on Algorand TestNet hub 770130162.">
+  <meta name="description" content="800 rounds or the drip is abandoned. Phosphor graphs from append-only sql.js history. Read-only Rain resolve window on Algorand TestNet hub 770130162.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
@@ -37,9 +37,28 @@
         <span class="crt-k">DECODED</span>
         <span class="crt-v" id="decoded">—</span>
       </div>
+      <div class="crt">
+        <span class="crt-k">HISTORY</span>
+        <span class="crt-v" id="hist-n">…</span>
+      </div>
     </div>
-    <p class="feed-note" id="feed-note">prefer live indexer · snapshot if CORS fails</p>
+    <p class="feed-note" id="feed-note">prefer live indexer · snapshot if CORS fails · graphs from append-only history</p>
   </header>
+
+  <section class="graphs" aria-label="rain history graphs">
+    <article class="panel" id="panel-mix">
+      <h2>STATUS MIX</h2>
+      <canvas id="mix-canvas" class="fill" width="320" height="220"></canvas>
+    </article>
+    <article class="panel" id="panel-split">
+      <h2>STATUS OVER TIME</h2>
+      <canvas id="split-canvas" class="fill" width="480" height="220"></canvas>
+    </article>
+    <article class="panel" id="panel-escrow">
+      <h2>POT / LOCKED</h2>
+      <canvas id="escrow-canvas" class="fill" width="480" height="220"></canvas>
+    </article>
+  </section>
 
   <section class="legend" aria-label="status legend">
     <div class="leg open"><i></i> open</div>
@@ -54,11 +73,12 @@
   <footer class="foot">
     <p>corvid-agent first-party demo · not the <a href="https://corvidlabs.xyz/arcron/console/">Arcron console</a> · not <a href="https://corvid-agent.github.io/arrivals/">arrivals</a>.</p>
     <p>Read-only. Cost zero. Unaudited. TestNet only. Layout: <code>RainRec</code> from <a href="https://github.com/CorvidLabs/arcron/blob/main/smart_contracts/rain/contract.py">CorvidLabs/arcron</a>.</p>
+    <p>Graphs query in-page sql.js over append-only history.json / history.sqlite (seeded from prior TestNet snapshot.json probes). Demo hub 770130162 — not product 770746178.</p>
     <p id="stamp">chain is source of truth.</p>
     <p class="src"><a href="https://github.com/corvid-agent/arcron-rain-window">source</a></p>
   </footer>
 
   <noscript class="noscript">This board needs JavaScript to decode TestNet boxes. A static snapshot lives in snapshot.json.</noscript>
-  <script src="app.js"></script>
+  <script type="module" src="board.mjs"></script>
 </body>
 </html>

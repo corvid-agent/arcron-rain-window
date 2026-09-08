@@ -117,3 +117,51 @@ def test_readme_and_index_honesty() -> None:
     assert "Apache-2.0" in README or "Apache" in (ROOT / "LICENSE").read_text()
     assert "770130162" in INDEX
     assert "TESTNET" in INDEX.upper()
+
+
+def test_history_sqlite_graphs_assets() -> None:
+    """Append-only history + CRT canvases for phosphor graphs."""
+    hist = json.loads((DOCS / "history.json").read_text())
+    assert isinstance(hist, list) and len(hist) >= 3
+    for row in hist:
+        assert int(row["round"]) > 0
+        assert "open" in row
+        assert "waiting" in row
+        assert "resolve_window" in row
+        assert "abandonable" in row
+        assert "pot_micro" in row
+        assert "prize_locked_micro" in row
+        assert "tickets" in row
+        assert "source" in row
+        assert int(row["listed"]) >= 1
+    assert (DOCS / "history.sqlite").is_file()
+    assert (ROOT / "scripts" / "probe_history.py").is_file()
+    assert 'id="mix-canvas"' in INDEX
+    assert 'id="split-canvas"' in INDEX
+    assert 'id="escrow-canvas"' in INDEX
+    assert "board.mjs" in INDEX
+    assert "bootHistoryGraphs" in APP_JS
+    assert "history.sqlite" in APP_JS or "history.json" in APP_JS
+    assert "770130162" in APP_JS
+    assert "770746178" not in APP_JS  # product hub must not appear as this board's hub const
+    assert "mainnet" not in APP_JS.lower()
+    assert "localnet" not in APP_JS.lower()
+    assert "mnemonic" not in APP_JS.lower()
+    probe = (ROOT / "scripts" / "probe_history.py").read_text()
+    assert "770130162" in probe
+    assert "770746178" in probe  # mentioned as refused product hub
+    assert "mainnet" not in probe.lower() or "no mnemonic" in probe.lower()
+    assert "No mnemonic" in probe or "no mnemonic" in probe.lower()
+    assert "snapshot.json" in probe
+
+
+def test_demo_hub_not_product_or_apps_81_87() -> None:
+    blob = json.dumps(SNAPSHOT).lower()
+    assert "770130162" in blob
+    assert SNAPSHOT["hub"] != 770746178
+    # Skip apps 81/87 as rain ids / deploy targets in this demo board.
+    rain_ids = {int(r["id"]) for r in SNAPSHOT["rains"]}
+    assert 81 not in rain_ids
+    assert 87 not in rain_ids
+    assert "chain 81" not in INDEX.lower()
+    assert "localnet" not in INDEX.lower()
