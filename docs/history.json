@@ -323,5 +323,18 @@
     "prize_locked_micro": 50000,
     "tickets": 9,
     "source": "probe_history.py from docs/snapshot.json"
+  },
+  {
+    "t": "2026-09-11T10:28:19Z",
+    "round": 67197895,
+    "listed": 5,
+    "open": 4,
+    "waiting": 0,
+    "resolve_window": 0,
+    "abandonable": 1,
+    "pot_micro": 6900000,
+    "prize_locked_micro": 50000,
+    "tickets": 9,
+    "source": "probe_history.py from docs/snapshot.json"
   }
 ]
