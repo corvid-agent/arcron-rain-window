@@ -27,6 +27,10 @@ python3 scripts/probe_history.py      # append docs/history.json + history.sqlit
 
 Phosphor graphs on the Pages board read append-only `docs/history.json` / `docs/history.sqlite` via in-page sql.js (same spirit as arcron-status-page).
 
+## CI honesty
+
+GitHub Actions `ci` installs `requirements-dev.txt` (`pytest`) and runs `tests/test_docs_honesty.py` on every push/PR — offline checks that `docs/snapshot.json` stays TestNet-shaped (hub `770130162`, no LocalNet/dockernet/localhost, no MainNet). Locally: `python3 -m pip install -r requirements-dev.txt && python3 -m pytest -q tests/`.
+
 ## Cost
 
 Zero. This repo never signs, never asks for a mnemonic, and never submits a transaction. Looking at boxes is free.
